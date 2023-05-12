@@ -1,23 +1,19 @@
 pipeline {
     agent any
-    environment{
-        DIRECTORY_PATH="/Users/harpreet/Desktop/Task5.1p"
-        TESTING_ENVIRONMENT="Jenkins"
-        PRODUCTION_ENVIRONMENT="Harpreet"
-    }
+    
     stages {
         stage('Build') {
             steps {
-                echo "fetch the source code from ${DIRECTORY_PATH}"
-                echo "compile the code and generate any necessary artifacts"
+                
+                echo "Building the code using Maven"
                
             }
            
         }
-        stage('Test') {
+        stage('Unit and Integration Test') {
             steps {
-                echo "Unit tests"
-                echo "Integration tests"
+                
+                echo "Unit and Integration Test worked using Selenium"
                
             }
            
@@ -26,23 +22,75 @@ pipeline {
             steps {
                 echo "Check the quality of the code"
             }
-        }
-        stage('Deploy') {
-            steps {
-                echo "Deploy the coding application to ${TESTING_ENVIRONMENT}"
+            post
+            {
+                failure
+                {
+                    mail to: 'takomijr420@gmail.com',
+                        subject: "Failure: Unit and Integration Tests",
+                        body: "Stage Failed, Please try again."
+                }
+                success
+                {
+                    mail to: 'takomijr420@gmail.com',
+                        subject: "Success: Unit and Integration Tests",
+                        body: "Stage worked Succesfully."
+                }
             }
         }
-        stage('Approval') {
+        stage('code Analysis') {
             steps {
-               
-                sleep 10
-               
+                echo "code anaylsed using SonarQube"
             }
         }
-        stage('Deploy to production') {
-            steps {
-                echo "Deployment completed by ${PRODUCTION_ENVIRONMENT} by the use of  ${TESTING_ENVIRONMENT} environment"
+        stage('Secuirty Scan') {
+              
+            steps 
+            {
+                echo 'Performing security scan using OWASP ZAP'
+            }
+            post
+            {   
+
+
+                failure 
+                {
+                    mail to: 'takomijr420@gmail.com',
+                        subject: "Failure: Security Scan",
+                        body: "Stage Failed, Please try again"
+                }
+                success 
+                {
+                    mail to: 'takomijr420@gmail.com',
+                        subject: "Success: Security Scan",
+                        body: "Stage worked Succesfully."
+                }
+                
+
+
+            }
+            
+        }
+        stage('Deploy to Staging')
+        {
+            steps
+            {
+                echo 'Deploy to staging sever using AWS EC2'
+
             }
         }
+        stage('Integration Tests on Staging')
+        {
+            steps
+            {
+                echo 'Run Integration Tests on Staging environment'
+            }
+        }
+        stage('Deploy to Production')
+        {
+            steps{
+                echo'Deploy to Production server using  AWS EC2'
+            }
+        }  
     }
 }
